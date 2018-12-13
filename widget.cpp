@@ -17,6 +17,11 @@ Widget::Widget(QWidget *parent) :
 
 void Widget::init()
 {
+    QSettings settings;
+    QString serverPath = settings.value("serverPath", QVariant(""));
+
+    ui->lineEditServerPath->setText(serverPath);
+
     connected = false;
     counter = 0;
     ip = "";
@@ -78,10 +83,10 @@ void Widget::loadIP()
     QString ip2 = ips.value(NEW_IP);
 
 
-    qDebug() << "ip1 : " << ip1;
-    qDebug() << "ip2 : " << ip2;
+    //qDebug() << "ip1 : " << ip1;
+    //qDebug() << "ip2 : " << ip2;
 
-    qDebug() << "Checking";
+    //qDebug() << "Checking";
 
     if(ip1 != ip2){
 
@@ -123,5 +128,13 @@ void Widget::timerEvent(QTimerEvent *event)
 
 void Widget::on_pushButtonLoadServerPath_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, tr("Choisir fichier serveur"), QDir::homePath(), "*.exe");
+    QString path = QFileDialog::getOpenFileName(this, tr("Choisir fichier serveur"), "C:/xampp", "*.exe");
+
+
+    if(path != "") {
+        QSettings settings;
+        settings.setValue("serverPath", path);
+
+        ui->lineEditServerPath->setText(path);
+    }
 }
