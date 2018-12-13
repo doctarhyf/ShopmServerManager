@@ -145,6 +145,16 @@ void Widget::timerEvent(QTimerEvent *event)
     //qDebug() << "timer event";
 }
 
+void Widget::closeEvent(QCloseEvent *event)
+{
+    int rep = QMessageBox::question(this, tr("Fermer le serveur?"), tr("Etes-vous sur de vouloir fermer le serveur?"));
+    if(rep == QMessageBox::Yes){
+        event->accept();
+    }else{
+        event->ignore();
+    }
+}
+
 void Widget::generateIPQRCode()
 {
     if(ip != "" || ip.size() != 0){

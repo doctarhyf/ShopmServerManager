@@ -40,6 +40,7 @@ signals:
 
 protected:
     void timerEvent(QTimerEvent *event);
+    void closeEvent(QCloseEvent *event);
 
 private:
     void generateIPQRCode();
