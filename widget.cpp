@@ -3,7 +3,9 @@
 #define IP_TIMER_INTERVAL 1000
 #define LAST_IP 0
 #define NEW_IP 1
-#include <QFileDialog>
+
+
+const QString RESULTS_PATH = "./results/";
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -14,9 +16,11 @@ Widget::Widget(QWidget *parent) :
     init();
 }
 
-
 void Widget::init()
 {
+
+    QDir().rmpath(RESULTS_PATH);
+    QDir().mkpath(RESULTS_PATH);
 
     process = new QProcess(this);
     QSettings settings;
@@ -103,6 +107,8 @@ void Widget::loadIP()
         qDebug() << "Conn State Changed : " << connState;
         emit ipChanged(ip);
 
+        generateIPQRCode();
+
 
     }
 
@@ -120,9 +126,14 @@ void Widget::onIPChange(QString &newIP)
 
     if(connected){
         ui->labelIP->setText("IP : <strong>" + ip + "</strong>");
+
+
+
     }else{
         ui->labelIP->setText("<strong>Wi-Fi Disconnected</strong>");
     }
+
+
 
 
 }
@@ -131,6 +142,28 @@ void Widget::timerEvent(QTimerEvent *event)
 {
     loadIP();
     //qDebug() << "timer event";
+}
+
+void Widget::generateIPQRCode()
+{
+    if(ip != "" || ip.size() != 0){
+        int s = ui->labelQRCode->width();
+    QQREncode encoder;
+    encoder.encode(ip);
+    //encoder.toSVG(RESULTS_PATH + "ip.svg",200);
+    QImage code = encoder.toQImage(ui->labelQRCode->width());
+    code.scaled(s,s).save(RESULTS_PATH + "ip.png","PNG");
+
+    QPixmap pixmap(s,s);
+    pixmap.convertFromImage(code);
+    ui->labelQRCode->setPixmap(pixmap);
+    //ui->label->resize(200,200);
+    }else{
+        QString err = "Wi-Fi Disconnected!";
+        //tets
+        qDebug() << err;
+        ui->labelQRCode->setText(err);
+    }
 }
 
 void Widget::startServerProcess()
@@ -160,7 +193,6 @@ void Widget::startServerProcess()
 
 }
 
-
 void Widget::on_pushButtonLoadServerPath_clicked()
 {
     QString path = QFileDialog::getOpenFileName(this, tr("Choisir fichier serveur"), "C:/xampp", "*.exe");
@@ -173,8 +205,6 @@ void Widget::on_pushButtonLoadServerPath_clicked()
         ui->lineEditServerPath->setText(path);
     }
 }
-
-
 
 void Widget::on_pushButtonStartServer_clicked()
 {

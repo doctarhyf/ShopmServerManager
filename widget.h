@@ -7,6 +7,8 @@
 #include <QtDebug>
 #include <QtNetwork/QtNetwork>
 #include <QMessageBox>
+#include <qqrencode.h>
+#include <QFileDialog>
 
 namespace Ui {
 class Widget;
@@ -38,6 +40,7 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private:
+    void generateIPQRCode();
     void startServerProcess();
     QProcess *process;
     bool connected;
