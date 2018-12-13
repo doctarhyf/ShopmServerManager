@@ -6,6 +6,7 @@
 #include <QtGui/QtGui>
 #include <QtDebug>
 #include <QtNetwork/QtNetwork>
+#include <QMessageBox>
 
 namespace Ui {
 class Widget;
@@ -24,6 +25,12 @@ private slots:
 
     void on_pushButtonLoadServerPath_clicked();
 
+
+
+    void on_pushButtonStartServer_clicked();
+
+    void on_checkBoxServerAutostart_toggled(bool checked);
+
 signals:
     void ipChanged(QString &newIP);
 
@@ -31,6 +38,8 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private:
+    void startServerProcess();
+    QProcess *process;
     bool connected;
     QHash<int, QString> ips;
     int counter;

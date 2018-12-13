@@ -69,7 +69,7 @@
             </layout>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButtonSearchServer_2">
+            <widget class="QPushButton" name="pushButtonStartServer">
              <property name="text">
               <string>Launch Server</string>
              </property>

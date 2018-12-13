@@ -17,8 +17,10 @@ Widget::Widget(QWidget *parent) :
 
 void Widget::init()
 {
+
+    process = new QProcess(this);
     QSettings settings;
-    QString serverPath = settings.value("serverPath", QVariant(""));
+    QString serverPath = settings.value("serverPath", QVariant("")).toString();
 
     ui->lineEditServerPath->setText(serverPath);
 
@@ -28,6 +30,10 @@ void Widget::init()
     ipTimerID = startTimer(IP_TIMER_INTERVAL);
 
     connect(this, SIGNAL(ipChanged(QString&)), this, SLOT(onIPChange(QString&)));
+
+    bool serverAutoStart = settings.value("serverAutoStart", QVariant(false)).toBool();
+    ui->checkBoxServerAutostart->setChecked(serverAutoStart);
+    if(ui->checkBoxServerAutostart->isChecked()) startServerProcess();
 
 }
 
@@ -117,12 +123,41 @@ void Widget::onIPChange(QString &newIP)
     }else{
         ui->labelIP->setText("<strong>Wi-Fi Disconnected</strong>");
     }
+
+
 }
 
 void Widget::timerEvent(QTimerEvent *event)
 {
     loadIP();
     //qDebug() << "timer event";
+}
+
+void Widget::startServerProcess()
+{
+    QString serverPath = ui->lineEditServerPath->text();
+
+    if(serverPath == ""){
+        QMessageBox::critical(this, tr("Chemin serveur vide"), tr("Veuillez choisir un chemin du serveur valide."), QMessageBox::Ok);
+        return;
+    }
+
+    QFile file(serverPath);
+
+    if(file.open(QIODevice::ReadOnly)){
+        if(!file.exists()){
+
+            QMessageBox::critical(this, tr("Fichier inexistant"), tr("Le fichier pointe par le chemin est inexistant."), QMessageBox::Ok);
+
+            file.close();
+            return;
+        }
+        file.close();
+    }
+
+
+    process->start(serverPath);
+
 }
 
 
@@ -137,4 +172,18 @@ void Widget::on_pushButtonLoadServerPath_clicked()
 
         ui->lineEditServerPath->setText(path);
     }
+}
+
+
+
+void Widget::on_pushButtonStartServer_clicked()
+{
+    startServerProcess();
+}
+
+void Widget::on_checkBoxServerAutostart_toggled(bool checked)
+{
+    QSettings settings;
+
+    settings.setValue("serverAutoStart", QVariant(checked));
 }
