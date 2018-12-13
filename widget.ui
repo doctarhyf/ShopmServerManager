@@ -76,6 +76,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QPushButton" name="pushButtonStopServer">
+             <property name="text">
+              <string>Stop Server</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QCheckBox" name="checkBoxServerAutostart">
              <property name="text">
               <string>Autostart Server</string>

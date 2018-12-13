@@ -33,6 +33,8 @@ private slots:
 
     void on_checkBoxServerAutostart_toggled(bool checked);
 
+    void on_pushButtonStopServer_clicked();
+
 signals:
     void ipChanged(QString &newIP);
 

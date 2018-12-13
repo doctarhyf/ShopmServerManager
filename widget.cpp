@@ -19,6 +19,7 @@ Widget::Widget(QWidget *parent) :
 void Widget::init()
 {
 
+    ui->pushButtonStopServer->setVisible(false);
     QDir().rmpath(RESULTS_PATH);
     QDir().mkpath(RESULTS_PATH);
 
@@ -149,7 +150,7 @@ void Widget::generateIPQRCode()
     if(ip != "" || ip.size() != 0){
         int s = ui->labelQRCode->width();
     QQREncode encoder;
-    encoder.encode(ip);
+    encoder.encode("ip_" + ip);
     //encoder.toSVG(RESULTS_PATH + "ip.svg",200);
     QImage code = encoder.toQImage(ui->labelQRCode->width());
     code.scaled(s,s).save(RESULTS_PATH + "ip.png","PNG");
@@ -191,6 +192,11 @@ void Widget::startServerProcess()
 
     process->start(serverPath);
 
+    if(process->state() == QProcess::Running){
+        ui->pushButtonStartServer->setVisible(false);
+        ui->pushButtonStopServer->setVisible(true);
+    }
+
 }
 
 void Widget::on_pushButtonLoadServerPath_clicked()
@@ -216,4 +222,13 @@ void Widget::on_checkBoxServerAutostart_toggled(bool checked)
     QSettings settings;
 
     settings.setValue("serverAutoStart", QVariant(checked));
+}
+
+void Widget::on_pushButtonStopServer_clicked()
+{
+    if(process->state() == QProcess::Running){
+        process->close();
+        ui->pushButtonStartServer->setVisible(true);
+        ui->pushButtonStopServer->setVisible(false);
+    }
 }
