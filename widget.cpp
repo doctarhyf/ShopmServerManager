@@ -19,6 +19,7 @@ Widget::Widget(QWidget *parent) :
 void Widget::init()
 {
 
+    QString connState = "offline";
     ui->pushButtonStopServer->setVisible(false);
     QDir().rmpath(RESULTS_PATH);
     QDir().mkpath(RESULTS_PATH);
@@ -104,7 +105,7 @@ void Widget::loadIP()
 
         connected = ip == "" ? false : true;
 
-        QString connState = connected ? "online" : "offline";
+        connState = connected ? "online" : "offline";
         qDebug() << "Conn State Changed : " << connState;
         emit ipChanged(ip);
 
@@ -133,6 +134,10 @@ void Widget::onIPChange(QString &newIP)
     }else{
         ui->labelIP->setText("<strong>Wi-Fi Disconnected</strong>");
     }
+
+    QMessageBox::information(this, "Connection state changed", "Connection status : <strong>" +
+                                                                      connState + ".</strong>\n" +
+                                                                      "IP : <strong>" + ip + ".</strong>");
 
 
 

@@ -43,6 +43,7 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
+    QString connState;
     void generateIPQRCode();
     void startServerProcess();
     QProcess *process;
