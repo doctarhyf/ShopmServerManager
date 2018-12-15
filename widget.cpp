@@ -5,7 +5,8 @@
 #define NEW_IP 1
 
 
-const QString RESULTS_PATH = "./results/";
+const QString RESULTS_PATH = "results/";
+const QString LOG_PATH = "log/";
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -53,40 +54,24 @@ void Widget::loadIP()
     if(counter > 1) counter = 0;
     ip = "";
 
+    foreach(QNetworkInterface interface, QNetworkInterface::allInterfaces()){
+        if(interface.flags().testFlag(QNetworkInterface::IsUp) && !interface.flags().testFlag(QNetworkInterface::IsLoopBack))
+            foreach(QNetworkAddressEntry entry, interface.addressEntries()){
+                if(interface.hardwareAddress() != "00:00:00:00:00:00" && entry.ip().toString().contains(".") && !interface.humanReadableName().contains("VM")){
 
-    QNetworkConfigurationManager mgr;
-    QList<QNetworkConfiguration> activeConfigs = mgr.allConfigurations(QNetworkConfiguration::Active);
-
-
-    for(int i = 0; i < activeConfigs.size(); i++){
-        QNetworkSession session(activeConfigs.at(i), this);
-
-        if( session.interface().flags() & QNetworkInterface::IsUp){
-
-            QNetworkInterface intf = session.interface();
-
-            if(intf.humanReadableName() == "Wi-Fi"){
-                //qDebug() << intf.index();
-
-                QList<QNetworkAddressEntry> entrz = intf.addressEntries();
-
-                for(QNetworkAddressEntry adde : entrz){
-
-                   if( adde.ip().protocol() == QAbstractSocket::IPv4Protocol){
-                       ip = adde.ip().toString();
-
-
-                   }
-
-
+                    QString ipStr = entry.ip().toString();
+                    QString msg = interface.name() + " " + ipStr + " " + interface.hardwareAddress();
+                qDebug() << msg;
+                log(msg);
+                ip = ipStr;
                 }
-
             }
-
-
-        }
-
     }
+
+    //inss
+
+    //end inss
+
 
 
     ips.insert(counter, ip);
@@ -95,10 +80,10 @@ void Widget::loadIP()
     QString ip2 = ips.value(NEW_IP);
 
 
-    //qDebug() << "ip1 : " << ip1;
-    //qDebug() << "ip2 : " << ip2;
+    log("ip1 : " + ip1 );
+    log("ip2 : " + ip2 );
 
-    //qDebug() << "Checking";
+    log("Checking status ...");
 
     if(ip1 != ip2){
 
@@ -106,7 +91,7 @@ void Widget::loadIP()
         connected = ip == "" ? false : true;
 
         connState = connected ? "online" : "offline";
-        qDebug() << "Conn State Changed : " << connState;
+        log("Conn State Changed : " + connState);
         emit ipChanged(ip);
 
         generateIPQRCode();
@@ -119,10 +104,9 @@ void Widget::loadIP()
     counter ++;
 
 }
-
 void Widget::onIPChange(QString &newIP)
 {
-    //qDebug() << "On new IP : " << newIP;
+    log( "On new IP : " + newIP);
     ip = newIP;
     connected = ip == "" ? false : true;
 
@@ -137,7 +121,7 @@ void Widget::onIPChange(QString &newIP)
 
     QMessageBox::information(this, "Connection state changed", "Connection status : <strong>" +
                                                                       connState + ".</strong>\n" +
-                                                                      "IP : <strong>" + ip + ".</strong>");
+                                                                      "IP : <strong>" + ip + "</strong>");
 
 
 
@@ -147,7 +131,7 @@ void Widget::onIPChange(QString &newIP)
 void Widget::timerEvent(QTimerEvent *event)
 {
     loadIP();
-    //qDebug() << "timer event";
+    log( "on timer event ... ");
 }
 
 void Widget::closeEvent(QCloseEvent *event)
@@ -158,6 +142,12 @@ void Widget::closeEvent(QCloseEvent *event)
     }else{
         event->ignore();
     }
+}
+
+void Widget::log(QString log)
+{
+    ui->plainTextEditDbgLog->appendPlainText(log);
+    //ui->plainTextEditDbgLog->appendPlainText("\c\r");
 }
 
 void Widget::generateIPQRCode()
@@ -177,7 +167,7 @@ void Widget::generateIPQRCode()
     }else{
         QString err = "Wi-Fi Disconnected!";
         //tets
-        qDebug() << err;
+        log(  err);
         ui->labelQRCode->setText(err);
     }
 }
@@ -245,5 +235,31 @@ void Widget::on_pushButtonStopServer_clicked()
         process->close();
         ui->pushButtonStartServer->setVisible(true);
         ui->pushButtonStopServer->setVisible(false);
+    }
+}
+
+void Widget::on_pushButtonClearLog_clicked()
+{
+    ui->plainTextEditDbgLog->clear();
+}
+
+void Widget::on_pushButtonSaveLog_clicked()
+{
+    QDir().rmpath(LOG_PATH);
+    QDir().mkpath(LOG_PATH);
+
+    QString logFileName = QDate::currentDate().toString("yyMMdd") + QTime::currentTime().toString("hhmmss") + ".log";
+
+    QString logFilePath = LOG_PATH + logFileName;
+    QFile logFile(logFilePath);
+
+    if(logFile.open(QIODevice::ReadWrite)){
+
+        if(-1 != logFile.write(ui->plainTextEditDbgLog->toPlainText().toLatin1())){
+            log("Log file saved to : " + logFilePath);
+        }
+
+    }else{
+        log("Error creating log file : " + logFilePath);
     }
 }

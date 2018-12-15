@@ -35,6 +35,10 @@ private slots:
 
     void on_pushButtonStopServer_clicked();
 
+    void on_pushButtonClearLog_clicked();
+
+    void on_pushButtonSaveLog_clicked();
+
 signals:
     void ipChanged(QString &newIP);
 
@@ -43,6 +47,7 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
+    void log(QString log);
     QString connState;
     void generateIPQRCode();
     void startServerProcess();
