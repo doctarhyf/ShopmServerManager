@@ -1,5 +1,6 @@
 #include "widget.h"
 #include "ui_widget.h"
+#include <QMenu>
 #define IP_TIMER_INTERVAL 1000
 #define LAST_IP 0
 #define NEW_IP 1
@@ -15,10 +16,12 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
 
     init();
+
 }
 
 void Widget::init()
 {
+
 
     QString connState = "offline";
     ui->pushButtonStopServer->setVisible(false);
@@ -42,11 +45,30 @@ void Widget::init()
     ui->checkBoxServerAutostart->setChecked(serverAutoStart);
     if(ui->checkBoxServerAutostart->isChecked()) startServerProcess();
 
+    initTrayIcon();
+
 }
 
 Widget::~Widget()
 {
     delete ui;
+}
+
+void Widget::onTrayIconMenuTriggered(QAction *action)
+{
+    if(action->text() == "Quit server"){
+        QWidget::close();
+    }
+}
+
+void Widget::messageClicked()
+{
+    qDebug() << "message clicked ...";
+}
+
+void Widget::iconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    qDebug() << "reason : " << reason;
 }
 
 void Widget::loadIP()
@@ -142,6 +164,26 @@ void Widget::closeEvent(QCloseEvent *event)
     }else{
         event->ignore();
     }
+}
+
+void Widget::initTrayIcon()
+{
+    trayIconMenu = new QMenu(this);
+    trayIconMenu->setIcon(QIcon(":/shopm_logo.png"));
+    trayIconMenu->addAction("Quit server");
+
+
+
+
+
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setContextMenu(trayIconMenu);
+    trayIcon->setToolTip("Server Shopm");
+    trayIcon->show();
+
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
+    connect(trayIcon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
+    connect(trayIconMenu, SIGNAL(triggered(QAction*)), this, SLOT(onTrayIconMenuTriggered(QAction*)));
 }
 
 void Widget::log(QString log)

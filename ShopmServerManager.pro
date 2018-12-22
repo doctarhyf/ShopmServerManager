@@ -19,6 +19,8 @@ HEADERS  += widget.h
 
 FORMS    += widget.ui
 
+win32:RC_ICONS += shopm.ico
+
 win32:CONFIG(release, debug|release) {
     # WINDOWS RELEASE
     PRE_TARGETDEPS += $$OUT_PWD/../qqrencode/release/qtqrencode.dll
@@ -38,3 +40,6 @@ win32:CONFIG(release, debug|release) {
 
 INCLUDEPATH += $$PWD/../qqrencode
 DEPENDPATH += $$PWD/../qqrencode
+
+RESOURCES += \
+    res.qrc

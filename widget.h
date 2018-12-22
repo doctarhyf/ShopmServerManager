@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <qqrencode.h>
 #include <QFileDialog>
+#include <QSystemTrayIcon>
 
 namespace Ui {
 class Widget;
@@ -23,6 +24,9 @@ public:
     ~Widget();
 
 private slots:
+    void onTrayIconMenuTriggered(QAction* action);
+    void messageClicked();
+    void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void onIPChange(QString &newIP);
 
     void on_pushButtonLoadServerPath_clicked();
@@ -47,6 +51,9 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
+    void initTrayIcon();
+    QSystemTrayIcon *trayIcon;
+    QMenu *trayIconMenu;
     void log(QString log);
     QString connState;
     void generateIPQRCode();
