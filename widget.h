@@ -51,6 +51,8 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
+    void checkForNewRepport();
+    int repportCountOld, repportCountNew;
     void initTrayIcon();
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;

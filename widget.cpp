@@ -8,6 +8,8 @@
 
 const QString RESULTS_PATH = "results/";
 const QString LOG_PATH = "log/";
+const QString PATH_REPPORTS = "C:/xampp/htdocs/shopm/rapports/";
+const QString kREPPORTS_NAMES = "kREPPORTS_NAMES";
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -17,10 +19,13 @@ Widget::Widget(QWidget *parent) :
 
     init();
 
+
+
 }
 
 void Widget::init()
 {
+
 
 
     QString connState = "offline";
@@ -46,6 +51,11 @@ void Widget::init()
     if(ui->checkBoxServerAutostart->isChecked()) startServerProcess();
 
     initTrayIcon();
+
+    QDir dirRepports(PATH_REPPORTS);
+    QStringList listRepportsFiles = dirRepports.entryList(QDir::Files | QDir::NoDotAndDotDot);
+
+    settings.setValue(kREPPORTS_NAMES, QVariant(listRepportsFiles));
 
 }
 
@@ -153,7 +163,25 @@ void Widget::onIPChange(QString &newIP)
 void Widget::timerEvent(QTimerEvent *event)
 {
     loadIP();
-    log( "on timer event ... ");
+    //log( "on timer event ... ");
+
+    checkForNewRepport();
+
+
+}
+
+void Widget::checkForNewRepport(){
+
+    /*qDebug()<< "CNTR " << counter;
+
+    QSettings sets;
+
+    QDir dirRepports(PATH_REPPORTS);
+    QStringList newRepportList = dirRepports.entryList(QDir::Files | QDir::NoDotAndDotDot);
+
+    QStringList oldReportList = sets.value(kREPPORTS_NAMES);
+
+    if(new)*/
 }
 
 void Widget::closeEvent(QCloseEvent *event)
